@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "name": "gcc ucrt64",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "C:/msys64/ucrt64/include",
+                "${workspaceFolder}/include/opencv2"
+            ],
+            "defines": [],
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "${default}",
+            "compilerPath": "C:/msys64/ucrt64/bin/gcc.exe",
+            "compilerArgs": [],
+            "browse": {
+                "path": [
+                    "${workspaceFolder}/**",
+                    "${workspaceFolder}/include/opencv2"
+                ]
+            }
+        }
+    ],
+    "version": 4
+}
