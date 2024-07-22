@@ -1,5 +1,5 @@
-#include <stdio.h>
-#include <pthread.h>
+#include <iostream>
+#include <thread>
 #include <opencv2/opencv.hpp>
 
 void main(){

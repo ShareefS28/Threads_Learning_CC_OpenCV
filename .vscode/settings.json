@@ -1,9 +1,6 @@
 {
     "files.associations": {
-        "stdio.h": "c",
-        "pthread.h": "c",
-        "opencv.hpp": "c",
-        "openacc.h": "c"
-    },
-    "C_Cpp.default.compilerPath": "cl.exe"
+        "thread": "cpp",
+        "iostream": "cpp"
+    }
 }
