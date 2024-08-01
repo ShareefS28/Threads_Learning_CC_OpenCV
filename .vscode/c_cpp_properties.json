@@ -5,7 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "C:/msys64/ucrt64/include",
-                "${workspaceFolder}/include/opencv2"
+                "C:/msys64/ucrt64/include/opencv4",
             ],
             "defines": [],
             "cStandard": "c11",
@@ -16,7 +16,8 @@
             "browse": {
                 "path": [
                     "${workspaceFolder}/**",
-                    "${workspaceFolder}/include/opencv2"
+                    "C:/msys64/ucrt64/include",
+                    "C:/msys64/ucrt64/include/opencv4",
                 ]
             }
         }
