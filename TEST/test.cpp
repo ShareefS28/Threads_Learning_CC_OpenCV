@@ -38,7 +38,7 @@ int main(){
 
         // Draw a detections on the frame
         for (const auto& value : _detection) {
-            cv::rectangle(frame, value, cv::Scalar(255, 0, 0), 2, 8, 0);
+            cv::rectangle(frame, value, cv::Scalar(255, 0 ,0), 2, 8, 0); // Scalar is B G R (Blue, Green, Red)
         }
 
         // Display the frame
