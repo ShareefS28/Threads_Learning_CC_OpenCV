@@ -4,8 +4,8 @@ g++ -o TEST/test TEST/test.cpp -I"C:/msys64/ucrt64/include/opencv4" -L"C:/msys64
 
 #include <opencv2/opencv.hpp>
 #include <iostream>
-#include <chrono>
-#include <sstream>
+#include <chrono> // time
+#include <sstream> // ostringstream
 
 using namespace std;
 
@@ -44,7 +44,7 @@ int main(){
         }
 
         // Calculate FPS
-        new_frame_time = chrono::system_clock::now();
+        new_frame_time = chrono::high_resolution_clock::now();
         chrono::duration<double> elapsed = new_frame_time - prev_frame_time;
         frameCount++;
         if (elapsed.count() >= 0.2) { // Update FPS every second --> elapsed.count() >= 1 it's mean update every second if it was 0.5 --> every 0.5 sec
