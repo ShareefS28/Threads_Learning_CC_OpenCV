@@ -12,9 +12,9 @@ int main(){
     cv::VideoCapture cap(0);    // Capture device 0 
     cv::CascadeClassifier detectionClassifier;  // Load Classifier
 
-    if(!detectionClassifier.load("../data/haarcascades_cuda/haarcascade_frontalface_default.xml")){
+    if(!detectionClassifier.load("../data/haarcascades/haarcascade_frontalface_default.xml")){
         cout << "XML file not loaded" << endl;
-        exit(0);
+        exit(1);
     }
 
     if (!cap.isOpened()) {
