@@ -4,7 +4,7 @@
 #include <string>
 
 namespace config{
-    void load_config(const std::string& config_file);
+    void load_config(const std::string config_file);
 }
 
 #endif

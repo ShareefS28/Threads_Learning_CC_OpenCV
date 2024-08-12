@@ -7,5 +7,4 @@ namespace VDP{
     void process_video_stream(const std::string& video_source);
 }
 
-
 #endif

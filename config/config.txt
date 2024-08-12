@@ -1,3 +1,4 @@
 video_sources: camera1, camera2
 detection_threshold: 0.5
 cache_expiration: 60
+cascade_data_path: ../data/haarcascades/haarcascade_frontalface_default.xml

@@ -1,4 +1,5 @@
 #include "video_processing.h"
+#include "object_detection.h"
 #include <opencv2/opencv.hpp>
 #include <thread>
 #include <vector>
@@ -7,10 +8,13 @@
 
 using namespace std;
 
+string fps_cal_tostring(chrono::high_resolution_clock::time_point& _prev_frame_time, chrono::high_resolution_clock::time_point _new_frame_time, int& _frameCount, double& _fps);
+
 namespace VDP{
     void process_video_stream(const string& video_source){
-        // Capture source
-        cv::VideoCapture cap(video_source);
+        cv::VideoCapture cap(video_source); // Capture source
+        OBJDT::load_cascade(); // load CascadeData
+
         if(!cap.isOpened()){
             cerr << "Error opening video stream: " << video_source << endl;
             return;
@@ -22,7 +26,7 @@ namespace VDP{
         cv::resizeWindow(winName, 640, 480); // sized of windows screen
         
         // FPS
-        double desire_fps = 60.0, fps = 0.0; // Desired FPS
+        double desire_fps = 60.0, fps = 0.0;
         cap.set(cv::CAP_PROP_FPS, desire_fps); // Attempt to set FPS
         chrono::_V2::system_clock::time_point prev_frame_time = chrono::high_resolution_clock::now();
         int frameCount = 0;
@@ -36,13 +40,22 @@ namespace VDP{
 
             // Display the FPS on the frame
             cv::putText(frame, fpsText, cv::Point(0, 10), cv::FONT_HERSHEY_SIMPLEX, 0.35, cv::Scalar(255, 200, 30), 1);
+
+            // Detect Object
+            OBJDT::object_detection(frame);
+
+            // Display the frame
+            cv::imshow(winName, frame);
+
+            // Keys for exit
+            if (cv::waitKey(10) == 'q' || cv::waitKey(10) == 27 || cv::getWindowProperty(winName, cv::WND_PROP_VISIBLE) < 1) { // 27 is the ASCII code for ESC key
+                break;
+            }
         }
     }
 }
 
-
 string fps_cal_tostring(chrono::high_resolution_clock::time_point& _prev_frame_time, chrono::high_resolution_clock::time_point _new_frame_time, int& _frameCount, double& _fps){
-    
     // Calculate FPS
     chrono::duration<double> elapsed = _new_frame_time - _prev_frame_time;
     _frameCount++;
