@@ -13,6 +13,7 @@ string fps_cal_tostring(chrono::high_resolution_clock::time_point& _prev_frame_t
 namespace VDP{
     void process_video_stream(const string& video_source){
         cv::VideoCapture cap(video_source); // Capture source
+        
         OBJDT::load_cascade(); // load CascadeData
 
         if(!cap.isOpened()){
@@ -23,7 +24,7 @@ namespace VDP{
         cv::Mat frame; // Matrix array store pixel
         string winName = "Video Capture"; // Windows Name
         cv::namedWindow(winName, cv::WINDOW_GUI_NORMAL); // Create Windows screen and use WINDOW_GUI_NORMAL screen form
-        cv::resizeWindow(winName, 640, 480); // sized of windows screen
+        cv::resizeWindow(winName, 640, 480); // sized of windows screen WIDTH x HEIGHT
         
         // FPS
         double desire_fps = 60.0, fps = 0.0;
@@ -36,13 +37,23 @@ namespace VDP{
                 cerr << "Captured an empty frame" << endl;
                 break;
             }
+
             string fpsText = fps_cal_tostring(prev_frame_time, chrono::high_resolution_clock::now(), frameCount, fps);
 
             // Display the FPS on the frame
             cv::putText(frame, fpsText, cv::Point(0, 10), cv::FONT_HERSHEY_SIMPLEX, 0.35, cv::Scalar(255, 200, 30), 1);
 
-            // Detect Object
-            OBJDT::object_detection(frame);
+            // Split the frame into top and bottom halves for parallel processing
+            cv::Rect top_half(0, 0, frame.cols, frame.rows / 2);
+            cv::Rect bottom_half(0, frame.rows / 2, frame.cols, frame.rows / 2);
+
+            // Create threads to process each region
+            thread top_thread(process_frame_in_region, ref(frame), top_half); // ref() is passing a reference memory || normal looks without thread process_frame_in_region(frame, top_half)
+            thread bottom_thread(process_frame_in_region, ref(frame), bottom_half); // ref() is passing a reference memory || normal looks without thread process_frame_in_region(frame, bottom_half)
+
+            // Wait for both threads to complete
+            top_thread.join();
+            bottom_thread.join();
 
             // Display the frame
             cv::imshow(winName, frame);
@@ -53,6 +64,12 @@ namespace VDP{
             }
         }
     }
+
+    void process_frame_in_region(cv::Mat& _frame, const cv::Rect& region){
+        cv::Mat  sub_frame = _frame(region);
+        OBJDT::object_detection(sub_frame);
+    }
+
 }
 
 string fps_cal_tostring(chrono::high_resolution_clock::time_point& _prev_frame_time, chrono::high_resolution_clock::time_point _new_frame_time, int& _frameCount, double& _fps){

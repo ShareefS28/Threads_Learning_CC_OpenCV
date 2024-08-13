@@ -34,10 +34,7 @@ namespace config{
                 // cout << "Key: " << key << ", Value: " << value << endl; // Print key-value pairs for debugging
 
                 // Assign values based on the key
-                if (key == "video_sources"){
-
-                } 
-                else if (key == "detection_threshold"){
+                if (key == "detection_threshold"){
                     
                 } 
                 else if (key == "cache_expiration"){
