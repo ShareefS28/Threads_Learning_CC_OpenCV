@@ -43,17 +43,9 @@ namespace VDP{
             // Display the FPS on the frame
             cv::putText(frame, fpsText, cv::Point(0, 10), cv::FONT_HERSHEY_SIMPLEX, 0.35, cv::Scalar(255, 200, 30), 1);
 
-            // Split the frame into top and bottom halves for parallel processing
-            cv::Rect top_half(0, 0, frame.cols, frame.rows / 2);
-            cv::Rect bottom_half(0, frame.rows / 2, frame.cols, frame.rows / 2);
-
-            // Create threads to process each region
-            thread top_thread(process_frame_in_region, ref(frame), top_half); // ref() is passing a reference memory || normal looks without thread process_frame_in_region(frame, top_half)
-            thread bottom_thread(process_frame_in_region, ref(frame), bottom_half); // ref() is passing a reference memory || normal looks without thread process_frame_in_region(frame, bottom_half)
-
-            // Wait for both threads to complete
-            top_thread.join();
-            bottom_thread.join();
+            // Parallel threads processing
+            // _two_threads_frame_region(frame);
+            
 
             // Display the frame
             cv::imshow(winName, frame);
@@ -70,6 +62,20 @@ namespace VDP{
         OBJDT::object_detection(sub_frame);
     }
 
+    void _two_threads_frame_region(cv::Mat& _frame){
+        // 2 threads
+        // Split the frame into top and bottom halves for parallel processing
+        cv::Rect top_half(0, 0, _frame.cols, _frame.rows / 2);
+        cv::Rect bottom_half(0, _frame.rows / 2, _frame.cols, _frame.rows / 2);
+
+        // Create threads to process each region
+        thread top_thread(process_frame_in_region, ref(_frame), top_half); // ref() is passing a reference memory || normal looks without thread process_frame_in_region(frame, top_half)
+        thread bottom_thread(process_frame_in_region, ref(_frame), bottom_half); // ref() is passing a reference memory || normal looks without thread process_frame_in_region(frame, bottom_half)
+        
+        // Wait for both threads to complete
+        top_thread.join();
+        bottom_thread.join();
+    }
 }
 
 string fps_cal_tostring(chrono::high_resolution_clock::time_point& _prev_frame_time, chrono::high_resolution_clock::time_point _new_frame_time, int& _frameCount, double& _fps){
