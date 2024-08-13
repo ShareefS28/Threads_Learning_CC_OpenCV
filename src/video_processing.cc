@@ -11,7 +11,7 @@ using namespace std;
 string fps_cal_tostring(chrono::high_resolution_clock::time_point& _prev_frame_time, chrono::high_resolution_clock::time_point _new_frame_time, int& _frameCount, double& _fps);
 
 namespace VDP{
-    void process_video_stream(const string& video_source){
+    void process_video_stream(const int video_source){
         cv::VideoCapture cap(video_source); // Capture source
         
         OBJDT::load_cascade(); // load CascadeData
@@ -44,7 +44,7 @@ namespace VDP{
             cv::putText(frame, fpsText, cv::Point(0, 10), cv::FONT_HERSHEY_SIMPLEX, 0.35, cv::Scalar(255, 200, 30), 1);
 
             // Parallel threads processing
-            // _two_threads_frame_region(frame);
+            // two_threads_frame_region(frame);
             
 
             // Display the frame
@@ -62,8 +62,7 @@ namespace VDP{
         OBJDT::object_detection(sub_frame);
     }
 
-    void _two_threads_frame_region(cv::Mat& _frame){
-        // 2 threads
+    void two_threads_frame_region(cv::Mat& _frame){
         // Split the frame into top and bottom halves for parallel processing
         cv::Rect top_half(0, 0, _frame.cols, _frame.rows / 2);
         cv::Rect bottom_half(0, _frame.rows / 2, _frame.cols, _frame.rows / 2);
@@ -75,6 +74,10 @@ namespace VDP{
         // Wait for both threads to complete
         top_thread.join();
         bottom_thread.join();
+    }
+
+    void four_threads_quadrants_frame(cv::Mat& _frame){
+
     }
 }
 
