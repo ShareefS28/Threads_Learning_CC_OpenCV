@@ -45,6 +45,7 @@ namespace VDP{
 
             // Parallel threads processing
             // two_threads_frame_region(frame);
+            // four_threads_quadrants_frame(frame);
             
 
             // Display the frame
@@ -77,7 +78,31 @@ namespace VDP{
     }
 
     void four_threads_quadrants_frame(cv::Mat& _frame){
+        // Split the frame into top and bottom halves for parallel processing --> Axis_Correseponse_Images.jpg
+        int rows = _frame.rows; // X_Rows corresponds to the height of the image.
+        int cols = _frame.cols; // Y_Cols corresponds to the width of the image.
+        int half_rows = rows / 2;
+        int half_cols = cols / 2;
 
+        cv::Rect regions[4] = {
+            cv::Rect(0, 0, half_cols, half_rows), // Top Left --> (start_x_Pos, start_y_Pos, extend_to_width_y, extend_to_height_x)
+            cv::Rect(half_cols, 0, cols - half_cols, half_rows), // Top Right --> (start_x_Pos, start_y_Pos, extend_to_width_y, extend_to_height_x)
+            cv::Rect(0, half_rows, half_cols, rows - half_rows), // Bottom Left --> (start_x_Pos, start_y_Pos, extend_to_width_y, extend_to_height_x)
+            cv::Rect(half_cols, half_rows, cols - half_cols, rows - half_rows), // Bottom Right --> (start_x_Pos, start_y_Pos, extend_to_width_y, extend_to_height_x)
+        };
+
+        // Create threads to process each quadrant
+        vector<thread> threads;
+        for(int i=0; i < sizeof(regions)/sizeof(regions[0]); i++){
+            threads.emplace_back(process_frame_in_region, ref(_frame), regions[i]);
+        }
+
+        // Wait for all threads to complete
+        for(thread& _thread: threads){
+            if(_thread.joinable()){
+                _thread.join();
+            }
+        }
     }
 }
 
