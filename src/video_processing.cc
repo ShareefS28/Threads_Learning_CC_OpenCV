@@ -93,8 +93,36 @@ namespace VDP{
 
         // Create threads to process each quadrant
         vector<thread> threads;
-        for(int i=0; i < sizeof(regions)/sizeof(regions[0]); i++){
+        for(int i=0; i < sizeof(regions)/sizeof(regions[0]); ++i){
             threads.emplace_back(process_frame_in_region, ref(_frame), regions[i]);
+        }
+
+        // Wait for all threads to complete
+        for(thread& _thread: threads){
+            if(_thread.joinable()){
+                _thread.join();
+            }
+        }
+    }
+
+    void define_thread_frame(cv::Mat& _frame, int _threads){
+        if((_threads % 2) != 0){
+            cerr << "(int _threads) at define_thread_frame should be EVEN Value;" << endl;
+            exit(1);
+        };
+
+        int rows = _frame.rows;
+        int cols = _frame.cols;
+        int sub_rows = rows / _threads;
+        int sub_cols = cols / _threads;
+
+        // Create threads and process each quadrant
+        vector<thread> threads;
+        for(int i=0; i < _threads; ++i){
+            for(int j=0; j < _threads; ++j){
+                cv::Rect region(j * sub_cols, i * sub_rows, sub_cols, sub_rows);
+                threads.emplace_back(process_frame_in_region, ref(_frame), region);
+            }
         }
 
         // Wait for all threads to complete
