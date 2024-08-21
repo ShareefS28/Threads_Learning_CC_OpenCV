@@ -8,10 +8,11 @@
 
 using namespace std;
 
-string fps_cal_tostring(chrono::high_resolution_clock::time_point& _prev_frame_time, chrono::high_resolution_clock::time_point _new_frame_time, int& _frameCount, double& _fps);
-
 namespace VDP{
-    void process_video_stream(const int video_source){
+    /* 
+        public
+    */  
+    void video_process::process_video_stream(const int video_source){
         cv::VideoCapture cap(video_source); // Capture source
         
         OBJDT::load_cascade(); // load CascadeData
@@ -45,7 +46,8 @@ namespace VDP{
 
             // Parallel threads processing
             // two_threads_frame_region(frame);
-            // four_threads_quadrants_frame(frame);
+            four_threads_quadrants_frame(frame);
+            // define_thread_frame(frame, 8);
             
 
             // Display the frame
@@ -57,13 +59,16 @@ namespace VDP{
             }
         }
     }
-
-    void process_frame_in_region(cv::Mat& _frame, const cv::Rect& region){
+    
+    /* 
+        private
+    */  
+    void video_process::process_frame_in_region(cv::Mat& _frame, const cv::Rect& region){
         cv::Mat  sub_frame = _frame(region);
         OBJDT::object_detection(sub_frame);
     }
 
-    void two_threads_frame_region(cv::Mat& _frame){
+    void video_process::two_threads_frame_region(cv::Mat& _frame){
         // Split the frame into top and bottom halves for parallel processing
         cv::Rect top_half(0, 0, _frame.cols, _frame.rows / 2);
         cv::Rect bottom_half(0, _frame.rows / 2, _frame.cols, _frame.rows / 2);
@@ -77,7 +82,7 @@ namespace VDP{
         bottom_thread.join();
     }
 
-    void four_threads_quadrants_frame(cv::Mat& _frame){
+    void video_process::four_threads_quadrants_frame(cv::Mat& _frame){
         // Split the frame into top and bottom halves for parallel processing --> Axis_Correseponse_Images.jpg
         int rows = _frame.rows; // X_Rows corresponds to the height of the image.
         int cols = _frame.cols; // Y_Cols corresponds to the width of the image.
@@ -105,7 +110,7 @@ namespace VDP{
         }
     }
 
-    void define_thread_frame(cv::Mat& _frame, int _threads){
+    void video_process::define_thread_frame(cv::Mat& _frame, int _threads){
         if((_threads % 2) != 0){
             cerr << "(int _threads) at define_thread_frame should be EVEN Value;" << endl;
             exit(1);
@@ -132,21 +137,21 @@ namespace VDP{
             }
         }
     }
-}
 
-string fps_cal_tostring(chrono::high_resolution_clock::time_point& _prev_frame_time, chrono::high_resolution_clock::time_point _new_frame_time, int& _frameCount, double& _fps){
-    // Calculate FPS
-    chrono::duration<double> elapsed = _new_frame_time - _prev_frame_time;
-    _frameCount++;
-    if (elapsed.count() >= 0.2) { // Update FPS every 0.2 sec 
-        _fps = _frameCount / elapsed.count();
-        _frameCount = 0;
-        _prev_frame_time = chrono::high_resolution_clock::now();;
+    string video_process::fps_cal_tostring(chrono::high_resolution_clock::time_point& _prev_frame_time, chrono::high_resolution_clock::time_point _new_frame_time, int& _frameCount, double& _fps){
+        // Calculate FPS
+        chrono::duration<double> elapsed = _new_frame_time - _prev_frame_time;
+        _frameCount++;
+        if (elapsed.count() >= 0.2) { // Update FPS every 0.2 sec 
+            _fps = _frameCount / elapsed.count();
+            _frameCount = 0;
+            _prev_frame_time = chrono::high_resolution_clock::now();;
+        }
+
+        // return double FPS to string with precision 3
+        ostringstream oss;
+        oss << fixed << setprecision(3) << _fps; // set Precition decimal
+        string current_fps = "FPS: " + oss.str();
+        return current_fps;
     }
-
-    // return double FPS to string with precision 3
-    ostringstream oss;
-    oss << fixed << setprecision(3) << _fps; // set Precition decimal
-    string current_fps = "FPS: " + oss.str();
-    return current_fps;
 }
