@@ -65,7 +65,7 @@ namespace VDP{
     */  
     void video_process::process_frame_in_region(cv::Mat& _frame, const cv::Rect& region){
         // cout << "Processing region: " << region << endl; // Debugging line
-        cv::Mat  sub_frame = _frame(region).clone(); // Deep Copy
+        cv::Mat sub_frame = _frame(region).clone(); // Deep Copy
         OBJDT::object_detection(sub_frame);
         sub_frame.copyTo(_frame(region)); // Copy the processed sub_frame back to the original frame
     }
@@ -97,6 +97,11 @@ namespace VDP{
             cv::Rect(0, half_rows, half_cols, rows - half_rows), // Bottom Left --> (start_x_Pos, start_y_Pos, extend_to_width_y, extend_to_height_x)
             cv::Rect(half_cols, half_rows, cols - half_cols, rows - half_rows), // Bottom Right --> (start_x_Pos, start_y_Pos, extend_to_width_y, extend_to_height_x)
         };
+
+        // Draw rectangles to visualize regions
+        for (int i = 0; i < sizeof(regions) / sizeof(regions[0]); ++i) {
+            cv::rectangle(_frame, regions[i], cv::Scalar(0, 255, 0), 2);
+        }
 
         // Create threads to process each quadrant
         vector<thread> threads;
