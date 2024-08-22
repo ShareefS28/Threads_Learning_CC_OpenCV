@@ -64,8 +64,10 @@ namespace VDP{
         private
     */  
     void video_process::process_frame_in_region(cv::Mat& _frame, const cv::Rect& region){
-        cv::Mat  sub_frame = _frame(region);
+        // cout << "Processing region: " << region << endl; // Debugging line
+        cv::Mat  sub_frame = _frame(region).clone(); // Deep Copy
         OBJDT::object_detection(sub_frame);
+        sub_frame.copyTo(_frame(region)); // Copy the processed sub_frame back to the original frame
     }
 
     void video_process::two_threads_frame_region(cv::Mat& _frame){
@@ -74,8 +76,8 @@ namespace VDP{
         cv::Rect bottom_half(0, _frame.rows / 2, _frame.cols, _frame.rows / 2);
 
         // Create threads to process each region
-        thread top_thread(process_frame_in_region, ref(_frame), top_half); // ref() is passing a reference memory || normal looks without thread process_frame_in_region(frame, top_half)
-        thread bottom_thread(process_frame_in_region, ref(_frame), bottom_half); // ref() is passing a reference memory || normal looks without thread process_frame_in_region(frame, bottom_half)
+        thread top_thread(&video_process::process_frame_in_region, this, ref(_frame), top_half); // ref() is passing a reference memory || normal looks without thread process_frame_in_region(frame, top_half)
+        thread bottom_thread(&video_process::process_frame_in_region, this, ref(_frame), bottom_half); // ref() is passing a reference memory || normal looks without thread process_frame_in_region(frame, bottom_half)
         
         // Wait for both threads to complete
         top_thread.join();
@@ -99,7 +101,7 @@ namespace VDP{
         // Create threads to process each quadrant
         vector<thread> threads;
         for(int i=0; i < sizeof(regions)/sizeof(regions[0]); ++i){
-            threads.emplace_back(process_frame_in_region, ref(_frame), regions[i]);
+            threads.emplace_back(&video_process::process_frame_in_region, this, ref(_frame), regions[i]);
         }
 
         // Wait for all threads to complete
@@ -126,7 +128,7 @@ namespace VDP{
         for(int i=0; i < _threads; ++i){
             for(int j=0; j < _threads; ++j){
                 cv::Rect region(j * sub_cols, i * sub_rows, sub_cols, sub_rows);
-                threads.emplace_back(process_frame_in_region, ref(_frame), region);
+                threads.emplace_back(&video_process::process_frame_in_region, this, ref(_frame), region);
             }
         }
 
