@@ -1,4 +1,4 @@
-## Realtime_object_detection with Concurrent && Caching in C++ Windows OS
+## OpenCV with Thread_frame in C++
 
 ### Requirements On Windows
 ###### MSYS2 installed
